@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "895439090647",
+    "project_id": "football-scoreboared",
+    "storage_bucket": "football-scoreboared.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:895439090647:android:a56cfb404821b7a59a1192",
+        "android_client_info": {
+          "package_name": "com.example.football_scoreboared"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCb3sT3d5Zvfg3C8WX2vTIzQ2lLCETbfqY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
