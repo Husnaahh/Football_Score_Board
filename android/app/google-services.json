@@ -12,7 +12,20 @@
           "package_name": "com.example.football_scoreboared"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "895439090647-3o0qnv9h4agfnc3vk4182mfuqfj79aii.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.football_scoreboared",
+            "certificate_hash": "d581f15e593c7548feb0f52dc56cee981412a27f"
+          }
+        },
+        {
+          "client_id": "895439090647-j4hk3q8bb0lsa7pb8t5uja76h70562va.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCb3sT3d5Zvfg3C8WX2vTIzQ2lLCETbfqY"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "895439090647-j4hk3q8bb0lsa7pb8t5uja76h70562va.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

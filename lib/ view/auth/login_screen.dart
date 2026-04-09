@@ -3,7 +3,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:football_scoreboared/%20view/auth/register_screen.dart';
 import 'package:football_scoreboared/%20view/home/home_screen.dart';
 import 'package:provider/provider.dart';
-
 import '../../common/common_button.dart';
 import '../../common/common_textfield.dart';
 import '../../constant/app_color.dart';
@@ -86,6 +85,8 @@ class LoginScreen extends StatelessWidget {
 
             SizedBox(height: 30),
 
+
+
             // 🔹 Divider
             Row(
               children: [
@@ -109,7 +110,7 @@ class LoginScreen extends StatelessWidget {
                   if (user != null) {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => AuthWrapper()),
+                      MaterialPageRoute(builder: (context) => HomeScreen()),
                     );
                   }
                 },
@@ -137,7 +138,7 @@ class LoginScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
+                      MaterialPageRoute(builder: (context) => RegisterScreen()),
                     );
                   },
                   child: Text('Register now', style: AppFontFamily.rgtbtn),
