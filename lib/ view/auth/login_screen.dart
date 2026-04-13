@@ -1,151 +1,200 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:football_scoreboared/%20view/auth/register_screen.dart';
-import 'package:football_scoreboared/%20view/home/home_screen.dart';
 import 'package:provider/provider.dart';
+
 import '../../common/common_button.dart';
 import '../../common/common_textfield.dart';
 import '../../constant/app_color.dart';
 import '../../constant/app_font_family.dart';
 import '../../controller/user_controller.dart';
+import '../../model/user_model.dart';
 import '../../service/auth_service.dart';
+import '../auth/register_screen.dart';
 import '../splash/auth_wrapper.dart';
 
 class LoginScreen extends StatelessWidget {
+  LoginScreen({super.key});
+
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.darkGrey,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('FSB', style: AppFontFamily.heading),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('FSB', style: AppFontFamily.heading),
+              const SizedBox(height: 10),
+              Text('FOOTBALL SCOREBOARD', style: AppFontFamily.scdheading),
+              const SizedBox(height: 25),
 
-            SizedBox(height: 10),
+              CommonTextfield(
+                txt: 'EMAIL',
+                controller: emailController,
+                obscureTxt: false,
+              ),
+              const SizedBox(height: 20),
 
-            Text('FOOTBALL SCOREBOARD', style: AppFontFamily.scdheading),
+              // PASSWORD
+              CommonTextfield(
+                txt: 'PASSWORD',
+                controller: passwordController,
+                obscureTxt: true,
+              ),
 
-            SizedBox(height: 25),
+              const SizedBox(height: 40),
 
-            CommonTextfield(
-              txt: 'EMAIL',
-              controller: emailController,
-              obscureTxt: false,
-            ),
+              Consumer<UserController>(
+                builder: (context, userController, child) {
+                  return CommonButton(
+                    txt: 'Login',
+                    onPressed: () async {
+                      final authService = AuthService();
 
-            SizedBox(height: 20),
+                      try {
+                        final user = await authService.loginEmail(
+                          emailController.text.trim(),
+                          passwordController.text.trim(),
+                        );
 
-            CommonTextfield(
-              txt: 'PASSWORD',
-              controller: passwordController,
-              obscureTxt: true,
-            ),
+                        if (user == null) return;
 
-            SizedBox(height: 90),
+                        await userController.loadUser(user.uid);
 
-            Consumer<UserController>(
-              builder: (context, userController, child) {
-                return CommonButton(
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AuthWrapper(),
+                          ),
+                        );
+
+                        Fluttertoast.showToast(
+                          msg: 'Login Success',
+                          textColor: Colors.white,
+                          backgroundColor: Colors.green,
+                        );
+                      } catch (e) {
+                        Fluttertoast.showToast(msg: e.toString());
+                      }
+                    },
+                  );
+                },
+              ),
+
+              const SizedBox(height: 25),
+
+              Row(
+                children: const [
+                  Expanded(child: Divider(color: Colors.grey)),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: Text("OR"),
+                  ),
+                  Expanded(child: Divider(color: Colors.grey)),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              SizedBox(
+                width: 350,
+                height: 55,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(
+                      color: AppColor.accentGreen,
+                      width: 2,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
                   onPressed: () async {
                     final authService = AuthService();
 
                     try {
-                      final user =  await authService.loginEmail(
-                        emailController.text.trim(),
-                        passwordController.text.trim(),
-                      );
+                      final user =
+                      await authService.signInWithGoogle(context);
 
-                      if(user != null) {
-                        await userController.loaddUser(user.uid);
+                      if (user == null) return;
+
+                      final userController =
+                      Provider.of<UserController>(context, listen: false);
+
+                      final existingUser =
+                      await userController.userService.getUser(user.uid);
+
+                      if (existingUser == null) {
+                        await userController.createUser(
+                          UserModel(
+                            uid: user.uid,
+                            name: user.displayName ?? '',
+                            email: user.email ?? '',
+                            role: 'user',
+                          ),
+                        );
+                      } else {
+                        await userController.loadUser(user.uid);
                       }
 
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => AuthWrapper()),
-                      );
-
-                      Fluttertoast.showToast(
-                        msg: 'Login Success',
-                        textColor: AppColor.darkGrey,
+                        MaterialPageRoute(
+                          builder: (context) => const AuthWrapper(),
+                        ),
                       );
                     } catch (e) {
                       Fluttertoast.showToast(msg: e.toString());
                     }
                   },
-                  txt: 'Login',
-                );
-              },
-            ),
-
-            SizedBox(height: 30),
-
-
-
-            // 🔹 Divider
-            Row(
-              children: [
-                Expanded(child: Divider(color: Colors.grey)),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  child: Text("OR", style: AppFontFamily.txt),
-                ),
-                Expanded(child: Divider(color: Colors.grey)),
-              ],
-            ),
-
-            SizedBox(height: 20),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () async {
-                  final user = await AuthService().signInWithGoogle(context);
-
-                  if (user != null) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
-                    );
-                  }
-                },
-                icon: Image.network(
-                  "https://cdn-icons-png.flaticon.com/512/2991/2991148.png",
-                  height: 22,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Icon(Icons.error, size: 22);
-                  },
-                ),
-                label: const Text(
-                  "Continue with Google",
-                  style: TextStyle(fontSize: 16),
+                  icon: Image.network(
+                    "https://cdn-icons-png.flaticon.com/512/2991/2991148.png",
+                    height: 22,
+                    errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.error),
+                  ),
+                  label: const Text(
+                    "Continue with Google",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: AppColor.accentGreen,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            SizedBox(height: 30),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Don`t have an account?', style: AppFontFamily.txt),
+              const SizedBox(height: 30),
 
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => RegisterScreen()),
-                    );
-                  },
-                  child: Text('Register now', style: AppFontFamily.rgtbtn),
-                ),
-              ],
-            ),
-          ],
+              // REGISTER
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account?",
+                    style: AppFontFamily.txt,
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RegisterScreen(),
+                        ),
+                      );
+                    },
+                    child: Text(
+                      'Register now',
+                      style: AppFontFamily.rgtbtn,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

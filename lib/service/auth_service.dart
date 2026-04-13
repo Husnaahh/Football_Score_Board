@@ -33,7 +33,6 @@ class AuthService {
     }
   }
 
-  // 🔐 Login with Email
   Future<User?> loginEmail(String email, String password) async {
     try {
       UserCredential userCredential =
@@ -51,7 +50,6 @@ class AuthService {
     }
   }
 
-  // 🔐 Google Sign-In
   Future<User?> signInWithGoogle(BuildContext context) async {
     try {
       final GoogleSignInAccount? googleUser =

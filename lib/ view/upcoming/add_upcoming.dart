@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';import '../../common/common_button.dart';
+import 'package:provider/provider.dart';
+
+import '../../common/common_button.dart';
 import '../../common/common_textfield.dart';
 import '../../constant/app_color.dart';
 import '../../constant/app_font_family.dart';

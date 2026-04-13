@@ -1,54 +1,65 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../constant/app_color.dart';
+
 import '../../controller/user_controller.dart';
+import '../admin/admin_dashboard.dart';
 import '../auth/login_screen.dart';
 import '../home/widget/main_screen.dart';
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
 
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool loading = false;
+
+  Future<void> loadUser(UserController controller, String uid) async {
+    if (!loading) {
+      loading = true;
+      await controller.loadUser(uid);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            backgroundColor: AppColor.darkGrey,
-            body: Center(
-              child: CircularProgressIndicator(color: AppColor.accentGreen),
-            ),
-          );
+
+        if (!snapshot.hasData) {
+          return LoginScreen();
         }
 
-        if (snapshot.hasData) {
+        final firebaseUser = snapshot.data!;
 
-          final user = snapshot.data!;
+        return Consumer<UserController>(
+          builder: (context, controller, child) {
 
-          return Consumer<UserController>(
-            builder: (context, userController, child) {
+            if (controller.userModel == null ||
+                controller.userModel!.uid != firebaseUser.uid) {
 
-              if (userController.user == null) {
+              loadUser(controller, firebaseUser.uid);
 
-                userController.loaddUser(user.uid);
+              return const Scaffold(
+                body: Center(),
+              );
+            }
 
-                return Scaffold(
-                  backgroundColor: AppColor.darkGrey,
-                  body: Center(
-                    child: CircularProgressIndicator(
-                      color: AppColor.accentGreen,
-                    ),
-                  ),
-                );
-              }
-              return MainScreen();
-            },
-          );
-        }
-        return LoginScreen();
+            final user = controller.userModel!;
+
+            print("ROLE: ${user.role}");
+
+            if (user.role.trim().toLowerCase() == "admin") {
+              return const AdminDashboard();
+            }
+
+            return const MainScreen();
+          },
+        );
       },
     );
   }

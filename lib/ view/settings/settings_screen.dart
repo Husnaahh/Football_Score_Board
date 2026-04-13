@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../common/buttons.dart';
 import '../../constant/app_color.dart';
 import '../../constant/app_font_family.dart';
+import '../notification/notification_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -45,7 +46,14 @@ class SettingsScreen extends StatelessWidget {
 
               Text('Notifications',style: AppFontFamily.txt6,),
               Buttons(
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => NotificationScreen(),
+                    ),
+                  );
+                },
                 txt: 'Match Alerts',
                 iconClr: AppColor.accentGreen,
                 txtClr: AppColor.accentGreen,

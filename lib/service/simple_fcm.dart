@@ -1,3 +1,4 @@
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -9,18 +10,14 @@ class SimpleFCM {
   FlutterLocalNotificationsPlugin();
 
   static Future<void> init() async {
-    //  Timezone init
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
 
-    //  Permission
     await _fcm.requestPermission(alert: true, badge: true, sound: true);
 
-    //  Token
     String? token = await _fcm.getToken();
     print('FCM Token: $token');
 
-    //  Local notification init
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
 
     const initSettings = InitializationSettings(android: androidInit);
@@ -31,7 +28,6 @@ class SimpleFCM {
         .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()
         ?.requestExactAlarmsPermission();
-    //  ANDROID NOTIFICATION CHANNEL (MISSING PART)
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'fcm_channel',
       'FCM Notifications',
@@ -45,7 +41,6 @@ class SimpleFCM {
     >()
         ?.createNotificationChannel(channel);
 
-    // Foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.notification != null) {
         _showInstantNotification(
@@ -55,7 +50,6 @@ class SimpleFCM {
       }
     });
 
-    // Topic subscribe
     await _fcm.subscribeToTopic('all_matches');
   }
 
@@ -92,7 +86,6 @@ class SimpleFCM {
     );
   }
 
-  //  INTERNAL method
   static Future<void> _showInstantNotification(
       String title,
       String body,

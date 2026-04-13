@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:football_scoreboared/%20view/auth/login_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
@@ -11,10 +12,10 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplahScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplahScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -22,17 +23,17 @@ class _SplahScreenState extends State<SplashScreen> {
   }
 
   Future<void> goLogin() async {
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(Duration(seconds: 6));
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => AuthWrapper()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
 
   final List<String> images = [
-    'assets/images/assets/images/messi.png',
-    'assets/images/assets/images/neymar.jpg',
-    'assets/images/assets/images/ronaldo.jpg',
+    'assets/images/neymar.jpg',
+    'assets/images/messi.png',
+    'assets/images/ronaldo.jpg',
 
   ];
 

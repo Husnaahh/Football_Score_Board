@@ -1,24 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:provider/provider.dart';
 
 import '../../common/common_button.dart';
 import '../../common/common_textfield.dart';
+import '../../constant/admin_constant.dart';
 import '../../constant/app_color.dart';
 import '../../constant/app_font_family.dart';
 import '../../controller/user_controller.dart';
 import '../../model/user_model.dart';
 import '../../service/auth_service.dart';
-import '../splash/auth_wrapper.dart';
 import 'login_screen.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
 
-  RegisterScreen({super.key});
+  String selectedRole = 'user';
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +36,15 @@ class RegisterScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
               Text('FSB', style: AppFontFamily.heading),
 
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
-              Text('FOOTBALL SCOREBOARD', style: AppFontFamily.scdheading),
+              Text('FOOTBALL SCOREBOARD',
+                  style: AppFontFamily.scdheading),
 
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
 
               CommonTextfield(
                 txt: 'NAME',
@@ -43,7 +52,7 @@ class RegisterScreen extends StatelessWidget {
                 obscureTxt: false,
               ),
 
-              SizedBox(height: 21),
+              const SizedBox(height: 20),
 
               CommonTextfield(
                 txt: 'EMAIL',
@@ -51,7 +60,7 @@ class RegisterScreen extends StatelessWidget {
                 obscureTxt: false,
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               CommonTextfield(
                 txt: 'PASSWORD',
@@ -59,63 +68,130 @@ class RegisterScreen extends StatelessWidget {
                 obscureTxt: true,
               ),
 
-              SizedBox(height: 90),
+              const SizedBox(height: 30),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Register as: ", style: AppFontFamily.txt),
+
+                  Row(
+                    children: [
+                      Radio<String>(
+                        value: 'user',
+                        groupValue: selectedRole,
+                        activeColor: AppColor.accentGreen,
+                        onChanged: (value) {
+                          setState(() => selectedRole = value!);
+                        },
+                      ),
+                      Text("User", style: AppFontFamily.txt),
+                    ],
+                  ),
+
+                  Row(
+                    children: [
+                      Radio<String>(
+                        value: 'admin',
+                        groupValue: selectedRole,
+                        activeColor: AppColor.accentGreen,
+                        onChanged: (value) {
+                          setState(() => selectedRole = value!);
+                        },
+                      ),
+                      Text("Admin", style: AppFontFamily.txt),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 40),
 
               Consumer<UserController>(
                 builder: (context, userController, child) {
                   return CommonButton(
+                    txt: 'Register',
                     onPressed: () async {
                       final authService = AuthService();
 
                       try {
+                        final name = nameController.text.trim();
+                        final email = emailController.text.trim();
+                        final password = passwordController.text.trim();
+
                         final user = await authService.registerEmail(
-                          nameController.text.trim(),
-                          emailController.text.trim(),
-                          passwordController.text.trim(),
+                          name,
+                          email,
+                          password,
                         );
 
-                        if (user != null) {
-                          final newUser = UserModel(
-                            uid: user.uid,
-                            name: nameController.text.trim(),
-                            email: user.email,
-                          );
+                        if (user == null) return;
 
-                          await userController.createUser(newUser);
+                        final isAdminEmail =
+                        adminEmails.contains(email);
+
+                        if (selectedRole == 'user' && isAdminEmail) {
+                          Fluttertoast.showToast(
+                            msg:
+                            "Admin email must register as Admin",
+                          );
+                          return;
                         }
 
-                        Fluttertoast.showToast(
-                          msg: 'Registration Success',
-                          textColor: AppColor.darkGrey,
+                        if (selectedRole == 'admin' && !isAdminEmail) {
+                          Fluttertoast.showToast(
+                            msg: "Only admin emails allowed",
+                          );
+                          return;
+                        }
+
+                        final newUser = UserModel(
+                          uid: user.uid,
+                          name: name,
+                          email: email,
+                          role: selectedRole,
                         );
+
+                        await userController.createUser(newUser);
 
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => AuthWrapper()),
+                          MaterialPageRoute(
+                            builder: (context) =>
+                             LoginScreen(),
+                          ),
+                        );
+
+                        Fluttertoast.showToast(
+                          msg: "Registration Success",
                         );
                       } catch (e) {
                         Fluttertoast.showToast(msg: e.toString());
                       }
                     },
-                    txt: 'Register',
                   );
                 },
               ),
 
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Already have an account?', style: AppFontFamily.txt),
+                  Text('Already have an account?',
+                      style: AppFontFamily.txt),
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                        MaterialPageRoute(
+                          builder: (context) =>
+                           LoginScreen(),
+                        ),
                       );
                     },
-                    child: Text('Login', style: AppFontFamily.rgtbtn),
+                    child: Text('Login',
+                        style: AppFontFamily.rgtbtn),
                   ),
                 ],
               ),

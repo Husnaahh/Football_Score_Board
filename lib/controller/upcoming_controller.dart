@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import '../model/team_logo_model.dart';
@@ -41,7 +42,7 @@ class UpcomingController with ChangeNotifier {
   }
 
   Future<void> deleteUpcomingMatch(String id) async {
-    await upcomingService.deleteUpcomgMatch(id);
+    await upcomingService.deleteUpcomingMatch(id);
     notifyListeners();
   }
 }
