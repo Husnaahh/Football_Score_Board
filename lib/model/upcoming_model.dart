@@ -1,39 +1,42 @@
-
 class UpcomingModel {
   final String? id;
-  final String? teamALogo;
   final String? teamAName;
-  final String? teamBLogo;
+  final String? teamALogo;
   final String? teamBName;
+  final String? teamBLogo;
+  final String? date;
   final String? time;
 
   UpcomingModel({
     this.id,
-    this.teamALogo,
     this.teamAName,
-    this.teamBLogo,
+    this.teamALogo,
     this.teamBName,
-    this.time
+    this.teamBLogo,
+    this.date,
+    this.time,
   });
 
-  factory UpcomingModel.fromMap(Map<String,dynamic> map,String id) {
+  factory UpcomingModel.fromMap(Map<String, dynamic> map, String id) {
     return UpcomingModel(
-        id: id,
-        teamALogo: map['teamALogo'],
-        teamAName: map['teamAName'],
-        teamBLogo: map['teamBLogo'],
-        teamBName: map['teamBName'],
-        time: map['time']
+      id: id,
+      teamAName: map['teamAName'],
+      teamALogo: map['teamALogo'],
+      teamBName: map['teamBName'],
+      teamBLogo: map['teamBLogo'],
+      date: map['date'],
+      time: map['time'],
     );
   }
 
-  Map<String,dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return {
-      'teamALogo' : teamALogo,
-      'teamAName' : teamAName,
-      'teamBLogo' : teamBLogo,
-      'teamBName' : teamBName,
-      'time' : time
+      'teamAName': teamAName,
+      'teamALogo': teamALogo,
+      'teamBName': teamBName,
+      'teamBLogo': teamBLogo,
+      'date': date,
+      'time': time,
     };
   }
 }

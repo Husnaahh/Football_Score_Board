@@ -1,14 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../model/notification_model.dart';
 
 class NotificationController extends ChangeNotifier {
-  final List<NotificationModel> _notifications = [];
+  final _collection = FirebaseFirestore.instance.collection('notifications');
 
-  List<NotificationModel> get notifications => _notifications;
+  Stream<List<NotificationModel>> get notifications {
+    return _collection
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snap) => snap.docs
+        .map((doc) => NotificationModel.fromMap(doc.data(), doc.id))
+        .toList());
+  }
 
-  void addNotification(NotificationModel model) {
-    _notifications.add(model);
-    notifyListeners();
+  Future<void> addNotification(NotificationModel model) async {
+    await _collection.add(model.toMap());
   }
 }

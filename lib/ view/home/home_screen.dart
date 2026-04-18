@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,24 +16,76 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreen();
 }
 
-class _HomeScreenState extends State<HomeScreen>
+class _HomeScreen extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
+
   final user = FirebaseAuth.instance.currentUser;
 
-  late TabController tabController;
+  late TabController tabController; // ✅ FIXED
+
+  StreamSubscription? _notifSub;
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 2, vsync: this);
+    _listenToNotifications();
+  }
+
+  void _listenToNotifications() {
+    final lastSeen = DateTime.now().subtract(const Duration(seconds: 5));
+
+    _notifSub = FirebaseFirestore.instance
+        .collection('notifications')
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .snapshots()
+        .listen((snapshot) {
+
+      if (snapshot.docs.isEmpty) return;
+
+      final doc = snapshot.docs.first;
+      final createdAt = (doc['createdAt'] as Timestamp).toDate();
+
+      if (createdAt.isAfter(lastSeen)) {
+        _showNotificationBanner(doc['title'], doc['message']);
+      }
+    });
+  }
+
+  void _showNotificationBanner(String title, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColor.accentGreen,
+        duration: const Duration(seconds: 4),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            Text(
+              message,
+              style: const TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   void dispose() {
     tabController.dispose();
+    _notifSub?.cancel();
     super.dispose();
   }
 
@@ -39,14 +94,17 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       backgroundColor: AppColor.darkGrey,
 
-      drawer: CustomDrawer(),
+      drawer: const CustomDrawer(),
 
       appBar: AppBar(
         backgroundColor: AppColor.darkGrey,
         leading: Builder(
           builder: (context) => IconButton(
-            onPressed: Scaffold.of(context).openDrawer,
-            icon: Icon(EneftyIcons.user_outline, color: AppColor.accentGreen),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+            icon: Icon(
+              EneftyIcons.user_outline,
+              color: AppColor.accentGreen,
+            ),
           ),
         ),
 
@@ -58,16 +116,19 @@ class _HomeScreenState extends State<HomeScreen>
         actions: [
           Row(
             children: [
-              Icon(Icons.sports_soccer_outlined, color: AppColor.accentGreen),
+              Icon(
+                Icons.sports_soccer_outlined,
+                color: AppColor.accentGreen,
+              ),
 
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
 
               IconButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => NotificationScreen(),
+                      builder: (_) => const NotificationScreen(),
                     ),
                   );
                 },
@@ -83,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen>
 
       body: Column(
         children: [
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -94,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen>
                   width: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(14),
-                    image: DecorationImage(
+                    image: const DecorationImage(
                       image: AssetImage("assets/images/football.jpg"),
                       fit: BoxFit.cover,
                     ),
@@ -121,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                       ),
 
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
 
                       Text(
                         'Instant football score updates',
@@ -136,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
 
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
 
           TabBar(
             controller: tabController,
@@ -152,7 +213,10 @@ class _HomeScreenState extends State<HomeScreen>
           Expanded(
             child: TabBarView(
               controller: tabController,
-              children: [TodayScreen(), UpcomingScreen()],
+              children: const [
+                TodayScreen(),
+                UpcomingScreen(),
+              ],
             ),
           ),
         ],

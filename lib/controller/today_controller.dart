@@ -1,6 +1,4 @@
-
-
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../model/team_logo_model.dart';
@@ -12,16 +10,10 @@ class TodayController with ChangeNotifier {
 
   TeamALogoModel? selectedTeamA;
   TeamBLogoModel? selectedTeamB;
-
   TimeOfDay? selectedTime;
 
   void setTeamA(TeamALogoModel teamA) {
     selectedTeamA = teamA;
-    notifyListeners();
-  }
-
-  void clearSelectedTeamA() {
-    selectedTeamA = null;
     notifyListeners();
   }
 
@@ -30,28 +22,35 @@ class TodayController with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearSelectedTeamB() {
+  void clearSelections() {
+    selectedTeamA = null;
     selectedTeamB = null;
-    notifyListeners();
-  }
-
-  void clearSelectTime() {
     selectedTime = null;
     notifyListeners();
   }
 
-  Stream<List<TodayModel>> get todayMaches {
+  Stream<List<TodayModel>> get todayMatches {
     return todayService.getTodayMatch();
   }
 
   Future<void> addTodayMatch(TodayModel model) async {
     await todayService.addTodayMatch(model);
-    clearSelectedTeamA();
-    clearSelectedTeamB();
+    clearSelections();
   }
 
   Future<void> deleteTodayMatch(String id) async {
     await todayService.deleteTodayMatch(id);
+    notifyListeners();
+  }
+  Future<void> updateScore(String id, int scoreA, int scoreB) async {
+    await FirebaseFirestore.instance
+        .collection('today_matches')
+        .doc(id)
+        .update({
+      'scoreA': scoreA,
+      'scoreB': scoreB,
+    });
+
     notifyListeners();
   }
 }

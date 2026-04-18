@@ -6,8 +6,7 @@ class UpcomingService {
 
   Stream<List<UpcomingModel>> getUpcomingMatch() {
     return firestore
-        .collection('upcomingMatches')
-        .orderBy('matchDateTime')
+        .collection('upcoming_matches')
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -17,10 +16,19 @@ class UpcomingService {
   }
 
   Future<void> addUpcomingMatch(UpcomingModel model) async {
-    await firestore.collection('upcomingMatches').add(model.toMap());
+    await firestore.collection('upcoming_matches').add({
+      "teamAName": model.teamAName ?? '',
+      "teamBName": model.teamBName ?? '',
+      "teamALogo": model.teamALogo ?? '',
+      "teamBLogo": model.teamBLogo ?? '',
+      "date": model.date ?? '',
+      "time": model.time ?? '',
+      "createdAt": DateTime.now().millisecondsSinceEpoch,
+    });
   }
 
+
   Future<void> deleteUpcomingMatch(String id) async {
-    await firestore.collection('upcomingMatches').doc(id).delete();
+    await firestore.collection('upcoming_matches').doc(id).delete();
   }
 }

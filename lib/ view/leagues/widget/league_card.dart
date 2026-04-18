@@ -1,6 +1,5 @@
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 
 import '../../../constant/app_color.dart';
@@ -10,8 +9,13 @@ import '../../../model/league_model.dart';
 
 class LeagueCard extends StatelessWidget {
   final LeagueModel model;
+  final bool isAdmin; // ✅ new field
 
-  const LeagueCard({super.key, required this.model});
+  const LeagueCard({
+    super.key,
+    required this.model,
+    required this.isAdmin,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class LeagueCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          SizedBox(height: 10,),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -38,38 +42,34 @@ class LeagueCard extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               ),
-
-              SizedBox(width: 20,),
-
-              Consumer<LeagueController>(
-                builder: (context, controller, child) {
-                  return IconButton(
-                    onPressed: () {
-                      if (model.id != null) {
-                        controller.deleteLeague(model.id!);
-                      }
-                    },
-                    icon: Icon(
-                      EneftyIcons.close_circle_outline,
-                      color: AppColor.accentGreen,
-                    ),
-                  );
-                },
-              ),
+              const SizedBox(width: 20),
+              // ✅ Only show delete icon if admin
+              if (isAdmin)
+                Consumer<LeagueController>(
+                  builder: (context, controller, child) {
+                    return IconButton(
+                      onPressed: () {
+                        if (model.id != null) {
+                          controller.deleteLeague(model.id!);
+                        }
+                      },
+                      icon: Icon(
+                        EneftyIcons.close_circle_outline,
+                        color: AppColor.accentGreen,
+                      ),
+                    );
+                  },
+                ),
             ],
           ),
-
-          SizedBox(height: 20,),
-
+          const SizedBox(height: 20),
           Text(
             model.name ?? '',
             style: AppFontFamily.txt4,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-
-          SizedBox(height: 25,),
-
+          const SizedBox(height: 25),
           Container(
             width: 120,
             height: 2,

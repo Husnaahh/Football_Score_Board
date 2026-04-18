@@ -1,11 +1,11 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:football_scoreboared/%20view/leagues/widget/league_card.dart';
+import 'package:provider/provider.dart';
 
-
-import 'package:provider/provider.dart';import '../../constant/app_color.dart';
+import '../../constant/app_color.dart';
 import '../../constant/app_font_family.dart';
 import '../../controller/league_controller.dart';
+import '../../controller/user_controller.dart';
 import 'add_league.dart';
 
 class LeaguesScreen extends StatelessWidget {
@@ -13,16 +13,17 @@ class LeaguesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin =
+        context.watch<UserController>().userModel?.role == 'admin';
+
     return Scaffold(
       backgroundColor: AppColor.darkGrey,
-
       appBar: AppBar(
         backgroundColor: AppColor.darkGrey,
         foregroundColor: AppColor.white,
         title: Text('League', style: AppFontFamily.txt1),
         centerTitle: true,
       ),
-
       body: Consumer<LeagueController>(
         builder: (context, controller, child) {
           return StreamBuilder(
@@ -30,7 +31,9 @@ class LeaguesScreen extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(
-                  child: CircularProgressIndicator(color: AppColor.accentGreen),
+                  child: CircularProgressIndicator(
+                    color: AppColor.accentGreen,
+                  ),
                 );
               }
 
@@ -45,41 +48,47 @@ class LeaguesScreen extends StatelessWidget {
 
               final leagues = snapshot.data!;
 
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              return Padding(
+                padding: const EdgeInsets.all(10),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 15,
-                    crossAxisSpacing: 15
+                    crossAxisSpacing: 15,
+                  ),
+                  itemCount: leagues.length,
+                  itemBuilder: (context, index) {
+                    return LeagueCard(
+                      model: leagues[index],
+                      isAdmin: isAdmin,
+                    );
+                  },
                 ),
-                itemCount: leagues.length,
-                itemBuilder: (context, index) {
-                  return LeagueCard(model: leagues[index]);
-                },
               );
             },
           );
         },
       ),
-
-      floatingActionButton: Padding(
+      // ✅ Only admin sees FAB
+      floatingActionButton: isAdmin
+          ? Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
         child: FloatingActionButton(
           heroTag: 'Add League',
           backgroundColor: AppColor.accentGreen,
           foregroundColor: AppColor.white,
           onPressed: () {
-            try {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => AddLeague()),
-              );
-            } catch (e, s) {
-              FirebaseCrashlytics.instance.recordError(e, s);
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const AddLeague(),
+              ),
+            );
           },
-          child: Icon(Icons.add, size: 30),
+          child: const Icon(Icons.add, size: 30),
         ),
-      ),
+      )
+          : null,
     );
   }
 }

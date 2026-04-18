@@ -1,6 +1,4 @@
-
 import 'package:flutter/material.dart';
-
 import '../model/team_logo_model.dart';
 import '../model/upcoming_model.dart';
 import '../service/upcoming_service.dart';
@@ -16,29 +14,24 @@ class UpcomingController with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearSelectedTeamA() {
-    selectedTeamA = null;
-    notifyListeners();
-  }
-
   void setTeamB(TeamBLogoModel teamB) {
     selectedTeamB = teamB;
     notifyListeners();
   }
 
-  void clearSelectedTeamB() {
+  void clearSelections() {
+    selectedTeamA = null;
     selectedTeamB = null;
     notifyListeners();
   }
 
-  Stream<List<UpcomingModel>> get upcomingMaches {
+  Stream<List<UpcomingModel>> get upcomingMatches {
     return upcomingService.getUpcomingMatch();
   }
 
   Future<void> addUpcomingMatch(UpcomingModel model) async {
     await upcomingService.addUpcomingMatch(model);
-    clearSelectedTeamA();
-    clearSelectedTeamB();
+    clearSelections();
   }
 
   Future<void> deleteUpcomingMatch(String id) async {

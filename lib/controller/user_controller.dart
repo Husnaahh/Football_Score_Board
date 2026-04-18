@@ -1,6 +1,7 @@
+// lib/controller/user_controller.dart
 import 'package:flutter/material.dart';
 import '../model/user_model.dart';
-import '../service/user_service.dart';
+import '../service/user_service.dart';   // ← import your service
 
 class UserController extends ChangeNotifier {
   final UserService userService = UserService();
@@ -13,13 +14,8 @@ class UserController extends ChangeNotifier {
   }
 
   Future<void> createUser(UserModel user) async {
-    await userService.crUser(user);
+    await userService.createUser(user);
     userModel = user;
-    notifyListeners();
-  }
-
-  void clearUser() {
-    userModel = null;
     notifyListeners();
   }
 }

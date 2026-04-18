@@ -7,233 +7,198 @@ import '../../constant/app_color.dart';
 import '../../constant/app_font_family.dart';
 import '../../constant/team_a_logo.dart';
 import '../../constant/team_b_logo.dart';
-import '../../controller/notification_controller.dart';
 import '../../controller/upcoming_controller.dart';
-import '../../model/notification_model.dart';
 import '../../model/team_logo_model.dart';
 import '../../model/upcoming_model.dart';
-import '../../service/simple_fcm.dart';
 
-class AddUpcoming extends StatelessWidget {
+class AddUpcoming extends StatefulWidget {
+  const AddUpcoming({super.key});
+
+  @override
+  State<AddUpcoming> createState() => _AddUpcomingState();
+}
+
+class _AddUpcomingState extends State<AddUpcoming> {
   final TextEditingController teamAnameController = TextEditingController();
   final TextEditingController teamBnameController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
 
   TimeOfDay? selectedTime;
 
-  AddUpcoming({super.key});
+  @override
+  void dispose() {
+    teamAnameController.dispose();
+    teamBnameController.dispose();
+    dateController.dispose();
+    timeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<UpcomingController>(context);
+
     return Scaffold(
       backgroundColor: AppColor.darkGrey,
       appBar: AppBar(
         backgroundColor: AppColor.darkGrey,
-        foregroundColor: AppColor.white,
-        title: Text('Add Upcoming', style: AppFontFamily.txt1),
+        title: Text('Add Upcoming Match', style: AppFontFamily.txt1),
         centerTitle: true,
       ),
 
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+
           Column(
             children: [
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 23,
-                  vertical: 8,
-                ),
-                child: Consumer<UpcomingController>(
-                  builder: (context, controller, child) {
-                    return DropdownButtonFormField<TeamALogoModel>(
-                      value: controller.selectedTeamA,
-                      dropdownColor: AppColor.darkGrey,
-                      decoration: InputDecoration(
-                        labelText: 'Select TeamA',
-                        labelStyle: AppFontFamily.txtField,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColor.accentGreen),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColor.accentGreen),
-                        ),
+                padding: const EdgeInsets.all(12),
+                child: DropdownButtonFormField<TeamALogoModel>(
+                  value: controller.selectedTeamA,
+                  dropdownColor: AppColor.black70,
+                  decoration: InputDecoration(
+                    labelText: 'Select Team A',
+                    labelStyle: AppFontFamily.txtField,
+                  ),
+                  items: teamAList.map((team) {
+                    return DropdownMenuItem(
+                      value: team,
+                      child: Row(
+                        children: [
+                          Image.network(team.logoUrlA!, width: 30),
+                          const SizedBox(width: 10),
+                          Text(team.name!, style: AppFontFamily.txt3),
+                        ],
                       ),
-                      items: teamAList.map((teamA) {
-                        return DropdownMenuItem<TeamALogoModel>(
-                          value: teamA,
-                          child: Row(
-                            children: [
-                              Image.network(
-                                teamA.logoUrlA!,
-                                width: 30,
-                                height: 30,
-                              ),
-
-                              SizedBox(height: 10),
-
-                              Text(teamA.name!, style: AppFontFamily.txt3),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value == null) return;
-
-                        controller.setTeamA(value);
-
-                        teamAnameController.text = value.name!;
-                      },
                     );
+                  }).toList(),
+                  onChanged: (value) {
+                    controller.setTeamA(value!);
+                    teamAnameController.text = value.name!;
                   },
                 ),
               ),
 
-              SizedBox(height: 10),
-
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 23,
-                  vertical: 8,
-                ),
-                child: Consumer<UpcomingController>(
-                  builder: (context, controller, child) {
-                    return DropdownButtonFormField<TeamBLogoModel>(
-                      value: controller.selectedTeamB,
-                      dropdownColor: AppColor.black70,
-                      decoration: InputDecoration(
-                        labelText: 'Select TeamB',
-                        labelStyle: AppFontFamily.txtField,
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColor.accentGreen),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: AppColor.accentGreen),
-                        ),
+                padding: const EdgeInsets.all(12),
+                child: DropdownButtonFormField<TeamBLogoModel>(
+                  value: controller.selectedTeamB,
+                  dropdownColor: AppColor.black70,
+                  decoration: InputDecoration(
+                    labelText: 'Select Team B',
+                    labelStyle: AppFontFamily.txtField,
+                  ),
+                  items: teamBList.map((team) {
+                    return DropdownMenuItem(
+                      value: team,
+                      child: Row(
+                        children: [
+                          Image.network(team.logoUrlB!, width: 30),
+                          const SizedBox(width: 10),
+                          Text(team.name!, style: AppFontFamily.txt3),
+                        ],
                       ),
-                      items: teamBList.map((teamB) {
-                        return DropdownMenuItem<TeamBLogoModel>(
-                          value: teamB,
-                          child: Row(
-                            children: [
-                              Image.network(
-                                teamB.logoUrlB!,
-                                width: 30,
-                                height: 30,
-                              ),
-
-                              SizedBox(height: 10),
-
-                              Text(teamB.name!, style: AppFontFamily.txt3),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        if (value == null) return;
-
-                        controller.setTeamB(value);
-
-                        teamBnameController.text = value.name!;
-                      },
                     );
+                  }).toList(),
+                  onChanged: (value) {
+                    controller.setTeamB(value!);
+                    teamBnameController.text = value.name!;
                   },
                 ),
               ),
 
-              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: GestureDetector(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
 
-              GestureDetector(
-                onTap: () async {
-                  final TimeOfDay? pickedTime = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                    builder: (context, child) {
-                      return Theme(
-                        data: ThemeData.dark().copyWith(
-                          timePickerTheme: TimePickerThemeData(
-                            dayPeriodColor: AppColor.accentGreen,
-                            dayPeriodTextColor: AppColor.white,
-                            backgroundColor: AppColor.darkGrey,
-                            hourMinuteTextColor: AppColor.white,
-                            dialHandColor: AppColor.accentGreen,
-                            dialBackgroundColor: AppColor.black70,
-                          ),
-                          colorScheme: ColorScheme.dark(
-                            primary: AppColor.accentGreen,
-                            onPrimary: AppColor.darkGrey,
-                            onSurface: AppColor.white,
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
-
-                  if (pickedTime != null) {
-                    selectedTime = pickedTime;
-                    timeController.text = pickedTime.format(context);
-                  }
-                },
-                child: AbsorbPointer(
-                  child: CommonTextfield(
-                    txt: 'Time',
-                    controller: timeController,
-                    obscureTxt: false,
+                    if (picked != null) {
+                      dateController.text =
+                      '${picked.day}/${picked.month}/${picked.year}';
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: CommonTextfield(
+                      txt: 'Date',
+                      controller: dateController,
+                      obscureTxt: false,
+                    ),
                   ),
                 ),
               ),
 
-              SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: GestureDetector(
+                  onTap: () async {
+                    final pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+
+                    if (pickedTime != null) {
+                      selectedTime = pickedTime;
+                      timeController.text = pickedTime.format(context);
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: CommonTextfield(
+                      txt: 'Time',
+                      controller: timeController,
+                      obscureTxt: false,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-          Column(
-            children: [
-              Consumer2<UpcomingController,NotificationController>(
-                builder: (context, upcomingController,notificationController, child) {
-                  return CommonButton(
-                    onPressed: () async {
-                      if (selectedTime == null) return;
 
-                      final model = UpcomingModel(
-                        teamALogo: upcomingController.selectedTeamA?.logoUrlA,
-                        teamAName: teamAnameController.text.trim(),
-                        teamBLogo: upcomingController.selectedTeamB?.logoUrlB,
-                        teamBName: teamBnameController.text.trim(),
-                        time: timeController.text.trim(),
-                      );
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: CommonButton(
+              txt: "Save",
+              onPressed: () async {
 
-                      await upcomingController.addUpcomingMatch(model);
-
-                      await SimpleFCM.showMatchNotification(
-                        teamA: model.teamAName!,
-                        teamB: model.teamBName!,
-                        time: model.time!,
-                      );
-
-                      notificationController.addNotification(
-                        NotificationModel(
-                          teamA: model.teamAName!,
-                          teamB: model.teamBName!,
-                          time: model.time!,
-                        ),
-                      );
-
-                      Navigator.pop(context);
-                    },
-                    txt: 'Save',
+                if (controller.selectedTeamA == null ||
+                    controller.selectedTeamB == null ||
+                    dateController.text.isEmpty ||
+                    timeController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Fill all fields")),
                   );
-                },
-              ),
+                  return;
+                }
 
-              SizedBox(height: 40),
-            ],
+                final model = UpcomingModel(
+                  teamAName: teamAnameController.text.trim(),
+                  teamBName: teamBnameController.text.trim(),
+                  teamALogo: controller.selectedTeamA!.logoUrlA,
+                  teamBLogo: controller.selectedTeamB!.logoUrlB,
+                  date: dateController.text.trim(),
+                  time: timeController.text.trim(),
+                );
+
+                await controller.addUpcomingMatch(model);
+
+                controller.clearSelections();
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Match Added")),
+                );
+              },
+            ),
           ),
         ],
       ),

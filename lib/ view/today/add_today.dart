@@ -14,14 +14,27 @@ import '../../model/team_logo_model.dart';
 import '../../model/today_model.dart';
 import '../../service/simple_fcm.dart';
 
-class AddToday extends StatelessWidget {
-  AddToday({super.key});
+class AddToday extends StatefulWidget {
+  const AddToday({super.key});
+
+  @override
+  State<AddToday> createState() => _AddTodayState();
+}
+
+class _AddTodayState extends State<AddToday> {
 
   final TextEditingController teamAnameController = TextEditingController();
   final TextEditingController teamBnameController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
-
   TimeOfDay? selectedTime;
+
+  @override
+  void dispose() {
+    teamAnameController.dispose();
+    teamBnameController.dispose();
+    timeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,18 +52,15 @@ class AddToday extends StatelessWidget {
         children: [
           Column(
             children: [
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 23,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 23, vertical: 8),
                 child: Consumer<TodayController>(
                   builder: (context, controller, child) {
                     return DropdownButtonFormField<TeamALogoModel>(
                       value: controller.selectedTeamA,
-                      dropdownColor: AppColor.darkGrey,
+                      dropdownColor: AppColor.black70,
                       decoration: InputDecoration(
                         labelText: 'Select TeamA',
                         labelStyle: AppFontFamily.txtField,
@@ -68,14 +78,8 @@ class AddToday extends StatelessWidget {
                           value: teamA,
                           child: Row(
                             children: [
-                              Image.network(
-                                teamA.logoUrlA!,
-                                width: 30,
-                                height: 30,
-                              ),
-
-                              SizedBox(height: 10),
-
+                              Image.network(teamA.logoUrlA!, width: 30, height: 30),
+                              const SizedBox(width: 10),
                               Text(teamA.name!, style: AppFontFamily.txt3),
                             ],
                           ),
@@ -83,9 +87,7 @@ class AddToday extends StatelessWidget {
                       }).toList(),
                       onChanged: (value) {
                         if (value == null) return;
-
                         controller.setTeamA(value);
-
                         teamAnameController.text = value.name!;
                       },
                     );
@@ -93,18 +95,13 @@ class AddToday extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 10),
-
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 23,
-                  vertical: 8,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 23, vertical: 8),
                 child: Consumer<TodayController>(
                   builder: (context, controller, child) {
                     return DropdownButtonFormField<TeamBLogoModel>(
                       value: controller.selectedTeamB,
-                      dropdownColor: AppColor.black70,
+                      dropdownColor: AppColor.black70,   // ✅ dark dropdown
                       decoration: InputDecoration(
                         labelText: 'Select TeamB',
                         labelStyle: AppFontFamily.txtField,
@@ -122,14 +119,8 @@ class AddToday extends StatelessWidget {
                           value: teamB,
                           child: Row(
                             children: [
-                              Image.network(
-                                teamB.logoUrlB!,
-                                width: 30,
-                                height: 30,
-                              ),
-
-                              SizedBox(height: 10),
-
+                              Image.network(teamB.logoUrlB!, width: 30, height: 30),
+                              const SizedBox(width: 10),
                               Text(teamB.name!, style: AppFontFamily.txt3),
                             ],
                           ),
@@ -137,9 +128,7 @@ class AddToday extends StatelessWidget {
                       }).toList(),
                       onChanged: (value) {
                         if (value == null) return;
-
                         controller.setTeamB(value);
-
                         teamBnameController.text = value.name!;
                       },
                     );
@@ -147,52 +136,53 @@ class AddToday extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 10),
-
-              GestureDetector(
-                onTap: () async {
-                  final TimeOfDay? pickedTime = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                    builder: (context, child) {
-                      return Theme(
-                        data: ThemeData.dark().copyWith(
-                          timePickerTheme: TimePickerThemeData(
-                            dayPeriodColor: AppColor.accentGreen,
-                            dayPeriodTextColor: AppColor.white,
-                            backgroundColor: AppColor.darkGrey,
-                            hourMinuteTextColor: AppColor.white,
-                            dialHandColor: AppColor.accentGreen,
-                            dialBackgroundColor: AppColor.black70,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 23, vertical: 8),
+                child: GestureDetector(
+                  onTap: () async {
+                    final TimeOfDay? pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: ThemeData.dark().copyWith(
+                            timePickerTheme: TimePickerThemeData(
+                              dayPeriodColor: AppColor.accentGreen,
+                              dayPeriodTextColor: AppColor.white,
+                              backgroundColor: AppColor.darkGrey,
+                              hourMinuteTextColor: AppColor.white,
+                              dialHandColor: AppColor.accentGreen,
+                              dialBackgroundColor: AppColor.black70,
+                            ),
+                            colorScheme: ColorScheme.dark(
+                              primary: AppColor.accentGreen,
+                              onPrimary: AppColor.darkGrey,
+                              onSurface: AppColor.white,
+                            ),
                           ),
-                          colorScheme: ColorScheme.dark(
-                            primary: AppColor.accentGreen,
-                            onPrimary: AppColor.darkGrey,
-                            onSurface: AppColor.white,
-                          ),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
-
-                  if (pickedTime != null) {
-                    selectedTime = pickedTime;
-                    timeController.text = pickedTime.format(context);
-                  }
-                },
-                child: AbsorbPointer(
-                  child: CommonTextfield(
-                    txt: 'Time',
-                    controller: timeController,
-                    obscureTxt: false,
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (pickedTime != null) {
+                      setState(() {
+                        selectedTime = pickedTime;
+                        timeController.text = pickedTime.format(context);
+                      });
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: CommonTextfield(
+                      txt: 'Time',
+                      controller: timeController,
+                      obscureTxt: false,
+                    ),
                   ),
                 ),
               ),
-
-              SizedBox(height: 10),
             ],
           ),
+
           Column(
             children: [
               Consumer2<TodayController, NotificationController>(
@@ -202,15 +192,10 @@ class AddToday extends StatelessWidget {
                       if (selectedTime == null) return;
 
                       final now = DateTime.now();
-
                       final matchDateTime = DateTime(
-                        now.year,
-                        now.month,
-                        now.day,
-                        selectedTime!.hour,
-                        selectedTime!.minute,
+                        now.year, now.month, now.day,
+                        selectedTime!.hour, selectedTime!.minute,
                       );
-
                       final scheduledTime = matchDateTime.isBefore(now)
                           ? matchDateTime.add(const Duration(days: 1))
                           : matchDateTime;
@@ -245,14 +230,15 @@ class AddToday extends StatelessWidget {
                         ),
                       );
 
+                      todayController.clearSelections();
+
                       Navigator.pop(context);
                     },
                     txt: 'Save',
                   );
                 },
               ),
-
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
           ),
         ],

@@ -39,7 +39,6 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // PASSWORD
               CommonTextfield(
                 txt: 'PASSWORD',
                 controller: passwordController,
@@ -63,19 +62,14 @@ class LoginScreen extends StatelessWidget {
 
                         if (user == null) return;
 
-                        await userController.loadUser(user.uid);
-
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AuthWrapper(),
-                          ),
+                        Navigator.pushReplacement(context, MaterialPageRoute(
+                          builder: (context) => AuthWrapper(),
+                        ),
                         );
 
                         Fluttertoast.showToast(
                           msg: 'Login Success',
-                          textColor: Colors.white,
-                          backgroundColor: Colors.green,
+                          backgroundColor: Colors.lightGreen,
                         );
                       } catch (e) {
                         Fluttertoast.showToast(msg: e.toString());
@@ -169,7 +163,6 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // REGISTER
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

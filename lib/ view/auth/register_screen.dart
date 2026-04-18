@@ -119,6 +119,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         final email = emailController.text.trim();
                         final password = passwordController.text.trim();
 
+                        final isAdminEmail = adminEmails.contains(email);
+
+                        // ✅ VALIDATION
+                        if (selectedRole == 'admin' && !isAdminEmail) {
+                          Fluttertoast.showToast(msg: "Only admin emails allowed");
+                          return;
+                        }
+
+                        if (selectedRole == 'user' && isAdminEmail) {
+                          Fluttertoast.showToast(msg: "Admin must register as admin");
+                          return;
+                        }
+
+                        print("ROLE SELECTED: $selectedRole");
+
+                        // ✅ CREATE AUTH USER
                         final user = await authService.registerEmail(
                           name,
                           email,
@@ -127,24 +143,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                         if (user == null) return;
 
-                        final isAdminEmail =
-                        adminEmails.contains(email);
-
-                        if (selectedRole == 'user' && isAdminEmail) {
-                          Fluttertoast.showToast(
-                            msg:
-                            "Admin email must register as Admin",
-                          );
-                          return;
-                        }
-
-                        if (selectedRole == 'admin' && !isAdminEmail) {
-                          Fluttertoast.showToast(
-                            msg: "Only admin emails allowed",
-                          );
-                          return;
-                        }
-
                         final newUser = UserModel(
                           uid: user.uid,
                           name: name,
@@ -152,19 +150,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           role: selectedRole,
                         );
 
-                        await userController.createUser(newUser);
+                        await Provider.of<UserController>(context, listen: false)
+                            .createUser(newUser);
 
+                        Fluttertoast.showToast(msg: "Registration Success");
+
+                        // ✅ NAVIGATE
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                             LoginScreen(),
-                          ),
+                          MaterialPageRoute(builder: (context) => LoginScreen()),
                         );
 
-                        Fluttertoast.showToast(
-                          msg: "Registration Success",
-                        );
                       } catch (e) {
                         Fluttertoast.showToast(msg: e.toString());
                       }
