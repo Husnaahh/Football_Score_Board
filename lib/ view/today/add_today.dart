@@ -101,7 +101,7 @@ class _AddTodayState extends State<AddToday> {
                   builder: (context, controller, child) {
                     return DropdownButtonFormField<TeamBLogoModel>(
                       value: controller.selectedTeamB,
-                      dropdownColor: AppColor.black70,   // ✅ dark dropdown
+                      dropdownColor: AppColor.black70,
                       decoration: InputDecoration(
                         labelText: 'Select TeamB',
                         labelStyle: AppFontFamily.txtField,

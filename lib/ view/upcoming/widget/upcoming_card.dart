@@ -1,4 +1,3 @@
-
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +6,7 @@ import '../../../constant/app_color.dart';
 import '../../../constant/app_font_family.dart';
 import '../../../controller/upcoming_controller.dart';
 import '../../../model/upcoming_model.dart';
+import '../add_upcoming.dart';
 
 class UpcomingCard extends StatelessWidget {
   final UpcomingModel model;
@@ -58,21 +58,53 @@ class UpcomingCard extends StatelessWidget {
                   ),
                 ),
 
-                Consumer<UpcomingController>(
-                  builder: (context, controller, child) {
-                    return IconButton(
-                      onPressed: () {
-                        if (model.id != null) {
-                          controller.deleteUpcomingMatch(model.id!);
+                Row(
+                  children: [
+
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          if (model.id == null) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Opening edit...")),
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => AddUpcoming(
+                                isEdit: true,
+                                docId: model.id!,
+                                existingModel: model,
+                              ),
+                            ),
+                          );
                         }
+                    ),
+
+                    
+                    Consumer<UpcomingController>(
+                      builder: (context, controller, child) {
+                        return IconButton(
+                          icon: Icon(
+                            EneftyIcons.close_circle_outline,
+                            color: AppColor.accentGreen,
+                          ),
+                          onPressed: () async {
+                            if (model.id != null) {
+                              await controller.deleteUpcomingMatch(model.id!);
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Deleted")),
+                              );
+                            }
+                          },
+                        );
                       },
-                      icon: Icon(
-                        EneftyIcons.close_circle_outline,
-                        color: AppColor.accentGreen,
-                      ),
-                    );
-                  },
-                ),
+                    ),
+                  ],
+                )
               ],
             ),
 

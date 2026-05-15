@@ -10,9 +10,17 @@ import '../../constant/team_b_logo.dart';
 import '../../controller/upcoming_controller.dart';
 import '../../model/team_logo_model.dart';
 import '../../model/upcoming_model.dart';
-
 class AddUpcoming extends StatefulWidget {
-  const AddUpcoming({super.key});
+  final bool isEdit;
+  final String? docId;
+  final UpcomingModel? existingModel;
+
+  const AddUpcoming({
+    super.key,
+    this.isEdit = false,
+    this.docId,
+    this.existingModel,
+  });
 
   @override
   State<AddUpcoming> createState() => _AddUpcomingState();
@@ -167,37 +175,55 @@ class _AddUpcomingState extends State<AddUpcoming> {
             padding: const EdgeInsets.all(20),
             child: CommonButton(
               txt: "Save",
-              onPressed: () async {
+                onPressed: () async {
+                  if (controller.selectedTeamA == null ||
+                      controller.selectedTeamB == null ||
+                      dateController.text.isEmpty ||
+                      timeController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Fill all fields")),
+                    );
+                    return;
+                  }
 
-                if (controller.selectedTeamA == null ||
-                    controller.selectedTeamB == null ||
-                    dateController.text.isEmpty ||
-                    timeController.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Fill all fields")),
+                  // ❌ Prevent same team selected
+                  if (controller.selectedTeamA!.name ==
+                      controller.selectedTeamB!.name) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Both teams cannot be same")),
+                    );
+                    return;
+                  }
+
+                  final model = UpcomingModel(
+                    teamAName: teamAnameController.text.trim(),
+                    teamBName: teamBnameController.text.trim(),
+                    teamALogo: controller.selectedTeamA!.logoUrlA,
+                    teamBLogo: controller.selectedTeamB!.logoUrlB,
+                    date: dateController.text.trim(),
+                    time: timeController.text.trim(),
                   );
-                  return;
+
+                  // 🔥 MAIN VALIDATION
+                  final isConflict = await controller.checkMatchConflict(model);
+
+                  if (isConflict) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Match conflict! Team already has a match at this time"),
+                      ),
+                    );
+                    return;
+                  }
+
+                  await controller.addUpcomingMatch(model);
+
+                  Navigator.pop(context);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Match Added")),
+                  );
                 }
-
-                final model = UpcomingModel(
-                  teamAName: teamAnameController.text.trim(),
-                  teamBName: teamBnameController.text.trim(),
-                  teamALogo: controller.selectedTeamA!.logoUrlA,
-                  teamBLogo: controller.selectedTeamB!.logoUrlB,
-                  date: dateController.text.trim(),
-                  time: timeController.text.trim(),
-                );
-
-                await controller.addUpcomingMatch(model);
-
-                controller.clearSelections();
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Match Added")),
-                );
-              },
             ),
           ),
         ],

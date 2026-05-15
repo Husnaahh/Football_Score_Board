@@ -19,7 +19,7 @@ class UpcomingModel {
 
   factory UpcomingModel.fromMap(Map<String, dynamic> map, String id) {
     return UpcomingModel(
-      id: id,
+      id: id, // ✅ MUST HAVE
       teamAName: map['teamAName'],
       teamALogo: map['teamALogo'],
       teamBName: map['teamBName'],
@@ -27,16 +27,5 @@ class UpcomingModel {
       date: map['date'],
       time: map['time'],
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'teamAName': teamAName,
-      'teamALogo': teamALogo,
-      'teamBName': teamBName,
-      'teamBLogo': teamBLogo,
-      'date': date,
-      'time': time,
-    };
   }
 }

@@ -69,7 +69,7 @@ class TodayCard extends StatelessWidget {
                     },
                   )
                 else
-                  const SizedBox(width: 48), // keeps layout balanced
+                  const SizedBox(width: 48),
               ],
             ),
 

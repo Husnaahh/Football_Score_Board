@@ -29,6 +29,19 @@ class UpcomingController with ChangeNotifier {
     return upcomingService.getUpcomingMatch();
   }
 
+  Future<bool> checkMatchConflict(UpcomingModel model) async {
+    return await upcomingService.isMatchConflict(
+      teamA: model.teamAName ?? '',
+      teamB: model.teamBName ?? '',
+      date: model.date ?? '',
+      time: model.time ?? '',
+    );
+  }
+
+  Future<void> updateMatch(String id, UpcomingModel model) async {
+    await upcomingService.updateUpcomingMatch(id, model);
+  }
+
   Future<void> addUpcomingMatch(UpcomingModel model) async {
     await upcomingService.addUpcomingMatch(model);
     clearSelections();
